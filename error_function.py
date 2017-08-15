@@ -93,7 +93,7 @@ def estmatedMask(depth, model,groundTruthP, estimatedP, K, maskT):
                                      maskT)
     return mask
 
-def ztest(pose_est, pose_gt, model, depth_test, delta, K):
+def zdd(pose_est, pose_gt, model, depth_test, delta, K):
     """
     Visible Surface Discrepancy.
 
@@ -146,7 +146,7 @@ def ztest(pose_est, pose_gt, model, depth_test, delta, K):
 
     return z
 
-def rate(model, groundTruthP, estimatedP, mint, maxt):
+def cpr(model, groundTruthP, estimatedP, mint, maxt):
 
     count1 = len(c.getEstUncetain(model, groundTruthP, estimatedP, maxt))
     count2 = len(c.getEstCetain(model, groundTruthP, estimatedP, mint))

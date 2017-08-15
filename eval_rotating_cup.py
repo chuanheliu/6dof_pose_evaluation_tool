@@ -67,25 +67,26 @@ def show(type, t1, t2):
         else:
             pose_indis_set = [pose]
 
-        if 'rate' in errs_active:
+        if 'cpr' in errs_active:
             mint = t1
             maxt = t2
-            errs['rate'].append(error.rate(model, pose_gt, pose, mint, maxt))
+            errs['cpr'].append(error.cpr(model, pose_gt, pose, mint, maxt))
 
         if 'mix' in errs_active:
             delta = 3
             tau = 30
+            # vsda.append(pose_error.re(pose['R'], pose_gt['R']))
             vsda.append(pose_error.vsd(pose, pose_gt, model, depth_test, delta, tau, K))
-            ztesta.append(math.fabs(error.ztest(pose, pose_gt, model, depth_test, delta, K)))
+            ztesta.append(math.fabs(error.zdd(pose, pose_gt, model, depth_test, delta, K)))
 
         if 'vsd' in errs_active:
             delta = 3
             tau = 30
             errs['vsd'].append(pose_error.vsd(pose, pose_gt, model, depth_test, delta, tau, K))
 
-        if 'ztest' in errs_active:
+        if 'zdd' in errs_active:
             delta = t1
-            errs['ztest'].append(error.ztest(pose, pose_gt, model, depth_test, delta, K))
+            errs['zdd'].append(error.zdd(pose, pose_gt, model, depth_test, delta, K))
 
     if 'mix' in errs_active:
         for i in range(0, 360):
