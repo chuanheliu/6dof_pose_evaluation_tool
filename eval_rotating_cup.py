@@ -72,29 +72,15 @@ def show(type, t1, t2):
             maxt = t2
             errs['cpr'].append(error.cpr(model, pose_gt, pose, mint, maxt))
 
-        if 'mix' in errs_active:
-            delta = 3
-            tau = 30
-            # vsda.append(pose_error.re(pose['R'], pose_gt['R']))
-            vsda.append(pose_error.vsd(pose, pose_gt, model, depth_test, delta, tau, K))
-            ztesta.append(math.fabs(error.zdd(pose, pose_gt, model, depth_test, delta, K)))
-
-        if 'vsd' in errs_active:
-            delta = 3
-            tau = 30
-            errs['vsd'].append(pose_error.vsd(pose, pose_gt, model, depth_test, delta, tau, K))
-
         if 'zdd' in errs_active:
-            delta = t1
+            delta = 3
             errs['zdd'].append(error.zdd(pose, pose_gt, model, depth_test, delta, K))
 
-    if 'mix' in errs_active:
-        for i in range(0, 360):
-            numerator1 = vsda[i] - min(vsda)
-            denominator1 = max(vsda) - min(vsda)
-            numerator2 = ztesta[i] - min(ztesta)
-            denominator2 = max(ztesta) - min(ztesta)
-            errs['mix'].append(t1 * numerator1/denominator1 + t2* numerator2/denominator2)
+
+        if 'wivm' in errs_active:
+            delta = t1
+            errs['wivm'].append(error.wivm(pose, pose_gt, model, depth_test, delta, K, t1, t2))
+
 
     for err_name in errs_active:
         plt.figure()

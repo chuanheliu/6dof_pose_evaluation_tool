@@ -30,7 +30,7 @@ def show_evaluate_page():
     r1.place(x = 80, y = 25)
     r2 = tk.Radiobutton(evaluate, text='ZDD', variable=var, value='zdd', command =print_selection)
     r2.place(x = 80, y = 45)
-    r3 = tk.Radiobutton(evaluate, text='mix', variable=var, value='mix', command =print_selection)
+    r3 = tk.Radiobutton(evaluate, text='WIVM', variable=var, value='wivm', command =print_selection)
     r3.place(x = 80, y = 65)
 
     def detail():
@@ -92,31 +92,25 @@ def show_evaluate_page():
 
             tk.Button(zdd_page, text='confirm', width=15, height=1, command=zdd_confirm).place(x= 50, y=190)
 
-        elif var.get()=='mix':
+        elif var.get()=='wivm':
             evaluate.withdraw()
-            mix_page = tk.Toplevel()
-            mix_page.title('mix model')
-            mix_page.geometry('240x230+580+250')
-            laber_mix = tk.Label(mix_page, bg='yellow', width=30, text='Please chose the weight')
-            laber_mix.pack()
+            wivm_page = tk.Toplevel()
+            wivm_page.title('WIVM model')
+            wivm_page.geometry('240x230+580+250')
+            laber_wivm = tk.Label(wivm_page, bg='yellow', width=30, text='Please chose the weight')
+            laber_wivm.pack()
 
-            weight = tk.Scale(mix_page, label='Weight for ZDD', from_=0, to=1, orient=tk.HORIZONTAL,
+            weight = tk.Scale(wivm_page, label='Weight for Inner Visibility Mask', from_=0, to=1, orient=tk.HORIZONTAL,
                                  length=200, showvalue=10,resolution=0.01)
             weight.set(0.50)
             weight.pack()
 
-            tk.Label(mix_page, text='Declear: mix two method together. \n'
-                                    'The number reflact the weight of ZDD ').place(x=10, y=100)
+            tk.Label(wivm_page, text='Declear: consider both inner and \nunion part. '
+                                    'The number reflact the \nweight for inner part ').place(x=10, y=100)
 
-            def zdd_confirm():
-                if str.isdigit(entry.get()):
-                    eval.show('zdd', (float)(entry.get()), 0)
-                else:
-                    laber_zdd.config(bg='red', text='Please input a number')
-
-            def mix_confirm():
-                eval.show('mix', weight.get(), 1-weight.get())
-            mix_confirm = tk.Button(mix_page, text='Confirm', width=15, height=1, command=mix_confirm)
+            def wivm_confirm():
+                eval.show('wivm', weight.get(), 1-weight.get())
+            mix_confirm = tk.Button(wivm_page, text='Confirm', width=15, height=1, command=wivm_confirm)
             mix_confirm.place(x=50, y=170)
 
         else:
