@@ -61,12 +61,6 @@ def show(type, t1, t2):
     for pose_id, pose in enumerate(poses):
         print 'Processing pose:', pose_id
 
-        # Determine the set of poses that are indistinguishable from the current pose
-        if 55 <= pose_id <= 125:
-            pose_indis_set = pose_gt_indis_set
-        else:
-            pose_indis_set = [pose]
-
         if 'cpr' in errs_active:
             mint = t1
             maxt = t2

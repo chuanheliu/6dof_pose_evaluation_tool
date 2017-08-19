@@ -23,7 +23,11 @@ def avg(list):
     return avg
 
 def dataVisualization(figure):
-
+    '''
+    generate the graph
+    :param figure: the figure that will show
+    :return:
+    '''
     plt.figure()
     plt.plot(figure, c='r', lw='3')
     plt.xlabel('pixels ID')
@@ -33,7 +37,18 @@ def dataVisualization(figure):
     plt.show()
 
 def diff(pose_id,pose_gt, poses, model, depth_test, delta, tau, K):
-
+    '''
+    show the difference between ground truth and estimated pose for all points
+    :param pose_id: the degree
+    :param pose_gt: the ground truth pose
+    :param poses: the estmite pose
+    :param model: the model of object
+    :param depth_test: depth image for test
+    :param delta: tolerance for visibility mask
+    :param tau:Misalignment tolerance
+    :param K: camera parameter
+    :return:
+    '''
     pose = poses[pose_id]
 
     c = calcost(pose, pose_gt, model, depth_test, delta, tau, K)
@@ -49,23 +64,23 @@ def standard_dev(pose_id,pose_gt, poses, model, depth_test, delta, tau, K):
     standard_dev_c = (c-np.mean(c))**2
     # for i in range(0,len(c)):
     #
-    #     standard_dev_c.append(math.pow((c[i]-avg(c)),2))
+    # standard_dev_c.append(math.pow((c[i]-avg(c)),2))
     # print 3
     dataVisualization(standard_dev_c)
 
-def calcost(pose_est, pose_gt, model, depth_test, delta, tau, K):
+def calcost(estmitendPose, groundTruthPose, model, depthImage, delta, tau, K):
 
-    im_size = (depth_test.shape[1], depth_test.shape[0])
+    im_size = (depthImage.shape[1], depthImage.shape[0])
 
     # Render depth images of the model in the estimated and the ground truth pose
-    depth_est = renderer.render(model, im_size, K, pose_est['R'], pose_est['t'],
+    depth_est = renderer.render(model, im_size, K, estmitendPose['R'], estmitendPose['t'],
                                 clip_near=100, clip_far=10000, mode='depth')
 
-    depth_gt = renderer.render(model, im_size, K, pose_gt['R'], pose_gt['t'],
+    depth_gt = renderer.render(model, im_size, K, groundTruthPose['R'], groundTruthPose['t'],
                                clip_near=100, clip_far=10000, mode='depth')
 
     # Convert depth images to distance images
-    dist_test = obj_pose_eval.misc.depth_im_to_dist_im(depth_test, K)
+    dist_test = obj_pose_eval.misc.depth_im_to_dist_im(depthImage, K)
     dist_gt = obj_pose_eval.misc.depth_im_to_dist_im(depth_gt, K)
 
     dist_est = obj_pose_eval.misc.depth_im_to_dist_im(depth_est, K)

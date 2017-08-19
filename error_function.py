@@ -134,8 +134,8 @@ def zdd(pose_est, pose_gt, model, depth_test, delta, K):
     inner = np.logical_and(gt,est)
 
     # Pixel-wise matching cost
-    sampleEST = dist_est[inner]
-    sampleGT = dist_gt[inner]
+    sampleEST = dist_est[est]
+    sampleGT = dist_gt[gt]
 
 
     avgEST = (float)(sampleEST.mean())
@@ -207,8 +207,8 @@ def wivm(pose_est, pose_gt, model, depth_test, delta, K, inn, un):
     z1 = (avgEST1 - avgGT1) / math.sqrt(
         (standardDeviationEST1 / len(sampleEST1)) + (standardDeviationGT1) / len(sampleGT1))
 
-    sampleEST2 = dist_est[inner]
-    sampleGT2 = dist_gt[inner]
+    sampleEST2 = dist_est[est]
+    sampleGT2 = dist_gt[gt]
 
     avgEST2 = (float)(sampleEST2.mean())
     avgGT2 = (float)(sampleGT2.mean())
