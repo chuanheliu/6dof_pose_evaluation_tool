@@ -1,10 +1,15 @@
+# Author: Chuanhe Liu
+
+# this is uesd for the data analysis
+# which can show the difference for each point
+# there are two models see average or standard deviation
+
+
 import matplotlib.pyplot as plt
 import numpy as np
 import obj_pose_eval.misc
 import obj_pose_eval.visibility as v
 from obj_pose_eval import inout, renderer, transform
-import math
-
 
 def avg(list):
     '''

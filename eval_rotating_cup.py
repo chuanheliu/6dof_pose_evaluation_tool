@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 
-# Author: Tomas Hodan (hodantom@cmp.felk.cvut.cz)
-# Center for Machine Perception, Czech Technical University in Prague
+# Author: Chuanhe Liu
 
-# Comparison of several pose error functions on a synthetic example
-# of a rotating cup.
+# the evalution for rotaring cup
+# including 360 degrees for a cup.
+# the ground truth pose is the 55-125 degrees
+
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -51,13 +52,14 @@ def show(type, t1, t2):
     depth_test = np.array(depth_gt)
     depth_test[depth_test == 0] = 1000
 
-    # Available errors: 'vsd', 'acpd', 'mcpd', 'add', 'adi', 'te', 're', 'cou'
+    # Available errors: 'cpr' 'wivm' 'zdd'
     # Errors to be calculated:
     errs_active = [type]
 
-    vsda, ztesta = [], []
+
     # Calculate the pose errors
     errs = {err: [] for err in errs_active}
+    # the for loop is calculate for 0 - 360 degrees.
     for pose_id, pose in enumerate(poses):
         print 'Processing pose:', pose_id
 

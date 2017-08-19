@@ -1,3 +1,8 @@
+# Author: Chuanhe Liu
+
+# the gui for the evaluation tool
+# which can call all functions including data analysis and the evaluation rotating cup
+
 import Tkinter as tk
 import eval_rotating_cup as eval
 import tkMessageBox as b

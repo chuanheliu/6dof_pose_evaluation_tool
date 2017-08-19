@@ -1,3 +1,9 @@
+# Author: Chuanhe Liu
+
+# this is uesd for the CPR method
+# which can get the wright points and wrong points
+# it also can count the number of points
+
 import math
 import obj_pose_eval.misc
 import numpy as np

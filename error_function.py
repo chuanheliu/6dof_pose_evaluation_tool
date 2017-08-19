@@ -1,5 +1,6 @@
-# Author: Tomas Hodan (hodantom@cmp.felk.cvut.cz)
-# Center for Machine Perception, Czech Technical University in Prague
+# Author: Chuanhe Liu
+
+# this is the defination of error functions
 
 import math
 
