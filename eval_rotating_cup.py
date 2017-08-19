@@ -75,7 +75,7 @@ def show(type, t1, t2):
             delta = t1
             errs['wivm'].append(error.wivm(pose, pose_gt, model, depth_test, delta, K, t1, t2))
 
-
+    # draw the graph for every degree.
     for err_name in errs_active:
         plt.figure()
         plt.plot(errs[err_name], c='r', lw='3')

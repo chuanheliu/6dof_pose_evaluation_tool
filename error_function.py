@@ -27,6 +27,7 @@ def avg(list):
     avg = (float)(sum / num)#sum and num are both interager
 
     return avg
+
 def dist(p1,p2):
     '''
     get the distance of two 3D points
@@ -38,6 +39,7 @@ def dist(p1,p2):
     temp = (p1[0]-p2[0])**2 + (p1[1]-p2[1])**2 + (p1[2]-p2[2])**2
     d = math.sqrt(temp)
     return d
+
 def groundTruthMask(depth, model, groundTruthP, K, maskT):
     '''
     get the visibility mask of the ground truth pose
@@ -93,119 +95,117 @@ def estmatedMask(depth, model,groundTruthP, estimatedP, K, maskT):
                                      maskT)
     return mask
 
-def zdd(pose_est, pose_gt, model, depth_test, delta, K):
+def zdd(estimatePose, groundTruthPose, model, depth, delta, K):
     """
-    Visible Surface Discrepancy.
-
-    :param pose_est: Estimated pose given by a dictionary:
-    {'R': 3x3 rotation matrix, 't': 3x1 translation vector}.
-    :param pose_gt: The ground truth pose given by a dictionary (as pose_est).
-    :param model: Object model given by a dictionary where item 'pts'
-    is nx3 ndarray with 3D model points.
-    :param depth_test: Depth image of the test scene.
-    :param delta: Tolerance used for estimation of the visibility masks.
-    :param tau: Misalignment tolerance.
-    :return: Error of pose_est w.r.t. pose_gt.
+    Z test for Distance Difference
+    :param estimatePose: Estimated pose given by a dictionary:
+            {'R': 3x3 rotation matrix, 't': 3x1 translation vector}.
+    :param groundTruthPose: The ground truth pose given by a dictionary
+    :param model: Object model given by a dictionary where item 'pts' is nx3 ndarray with 3D model points.
+    :param depth: Depth image of the test scene.
+    :param delta: Tolerance used for estimation of the visibility masks
+    :param K: camera pramter
+    :return: the zdd error
     """
 
-    im_size = (depth_test.shape[1], depth_test.shape[0])
+    im_size = (depth.shape[1], depth.shape[0])
 
     # Render depth images of the model in the estimated and the ground truth pose
-    depth_est = renderer.render(model, im_size, K, pose_est['R'], pose_est['t'],
+    depth_est = renderer.render(model, im_size, K, estimatePose['R'], estimatePose['t'],
                                 clip_near=100, clip_far=10000, mode='depth')
 
-    depth_gt = renderer.render(model, im_size, K, pose_gt['R'], pose_gt['t'],
+    depth_gt = renderer.render(model, im_size, K, groundTruthPose['R'], groundTruthPose['t'],
                                clip_near=100, clip_far=10000, mode='depth')
 
     # Convert depth images to distance images
-    dist_test = misc.depth_im_to_dist_im(depth_test, K)
+    dist_test = misc.depth_im_to_dist_im(depth, K)
     dist_gt = misc.depth_im_to_dist_im(depth_gt, K)
 
     dist_est = misc.depth_im_to_dist_im(depth_est, K)
 
 
     # Visibility mask of the model in the ground truth pose
-    gt = groundTruthMask(depth_test, model, pose_gt, K, delta)
+    gt = groundTruthMask(depth, model, groundTruthPose, K, delta)
 
     # Visibility mask of the model in the estimated pose
-    est = estmatedMask(depth_test, model,pose_gt, pose_est, K, delta)
+    est = estmatedMask(depth, model, groundTruthPose, estimatePose, K, delta)
 
+    # distance image with visibility mask
+    distMaskEST = dist_est[est]
+    distMaskGT = dist_gt[gt]
 
-    inner = np.logical_and(gt,est)
+    # average for distance with mask
+    avgEST = (float)(distMaskEST.mean())
+    avgGT = (float)(distMaskGT.mean())
 
-    # Pixel-wise matching cost
-    sampleEST = dist_est[est]
-    sampleGT = dist_gt[gt]
-
-
-    avgEST = (float)(sampleEST.mean())
-    avgGT = (float)(sampleGT.mean())
+    # calcute standard deviation
     standardDeviationEST, standardDeviationGT = 0.0, 0.0
-    for i in range(0, len(sampleEST)):
-        standardDeviationEST += math.pow((sampleEST[i] - avgEST), 2)
-    for i in range(0, len(sampleGT)):
-        standardDeviationGT += math.pow((sampleGT[i] - avgGT), 2)
+    for i in range(0, len(distMaskEST)):
+        standardDeviationEST += math.pow((distMaskEST[i] - avgEST), 2)
+    for i in range(0, len(distMaskGT)):
+        standardDeviationGT += math.pow((distMaskGT[i] - avgGT), 2)
 
-    z = (avgEST - avgGT) / math.sqrt((standardDeviationEST/len(sampleEST)) + (standardDeviationGT)/len(sampleGT))
+
+    # get the result of z Test for two group fo data
+    z = (avgEST - avgGT) / math.sqrt((standardDeviationEST/len(distMaskEST)) + (standardDeviationGT)/len(distMaskGT))
 
 
     return z
 
-
-def wivm(pose_est, pose_gt, model, depth_test, delta, K, inn, un):
+def wivm(estimatePose, groundTruthPose, model, depth, delta, K, inn, un):
     """
-    Visible Surface Discrepancy.
-
-    :param pose_est: Estimated pose given by a dictionary:
-    {'R': 3x3 rotation matrix, 't': 3x1 translation vector}.
-    :param pose_gt: The ground truth pose given by a dictionary (as pose_est).
-    :param model: Object model given by a dictionary where item 'pts'
-    is nx3 ndarray with 3D model points.
-    :param depth_test: Depth image of the test scene.
-    :param delta: Tolerance used for estimation of the visibility masks.
-    :param tau: Misalignment tolerance.
-    :return: Error of pose_est w.r.t. pose_gt.
+    Weight for Inner Visibility Mask
+    :param estimatePose: Estimated pose given by a dictionary:
+            {'R': 3x3 rotation matrix, 't': 3x1 translation vector}.
+    :param groundTruthPose: The ground truth pose given by a dictionary
+    :param model: Object model given by a dictionary where item 'pts' is nx3 ndarray with 3D model points.
+    :param depth: Depth image of the test scene.
+    :param delta: Tolerance used for estimation of the visibility masks
+    :param K: camera pramter
+    :param inn: weight for their own part
+    :param un: weight for the union set part
+    :return: the error for WIVM
     """
 
-    im_size = (depth_test.shape[1], depth_test.shape[0])
+    im_size = (depth.shape[1], depth.shape[0])
 
     # Render depth images of the model in the estimated and the ground truth pose
-    depth_est = renderer.render(model, im_size, K, pose_est['R'], pose_est['t'],
+    depth_est = renderer.render(model, im_size, K, estimatePose['R'], estimatePose['t'],
                                 clip_near=100, clip_far=10000, mode='depth')
 
-    depth_gt = renderer.render(model, im_size, K, pose_gt['R'], pose_gt['t'],
+    depth_gt = renderer.render(model, im_size, K, groundTruthPose['R'], groundTruthPose['t'],
                                clip_near=100, clip_far=10000, mode='depth')
 
     # Convert depth images to distance images
-    dist_test = misc.depth_im_to_dist_im(depth_test, K)
+    dist_test = misc.depth_im_to_dist_im(depth, K)
     dist_gt = misc.depth_im_to_dist_im(depth_gt, K)
 
     dist_est = misc.depth_im_to_dist_im(depth_est, K)
 
     # Visibility mask of the model in the ground truth pose
-    gt = groundTruthMask(depth_test, model, pose_gt, K, delta)
+    gt = groundTruthMask(depth, model, groundTruthPose, K, delta)
 
     # Visibility mask of the model in the estimated pose
-    est = estmatedMask(depth_test, model, pose_gt, pose_est, K, delta)
+    est = estmatedMask(depth, model, groundTruthPose, estimatePose, K, delta)
 
-    inner = np.logical_and(gt, est)
-
+    # union set for ground truth and estimate visibility mask
     union = np.logical_or(gt, est)
 
-    # Pixel-wise matching cost
-    sampleEST1 = dist_est[union]
-    sampleGT1 = dist_gt[union]
+    # distance image with visibility union mask
+    distUnionMaskEST = dist_est[union]
+    distUnionMaskGT = dist_gt[union]
 
-    avgEST1 = (float)(sampleEST1.mean())
-    avgGT1 = (float)(sampleGT1.mean())
+    avgEST1 = (float)(distUnionMaskEST.mean())
+    avgGT1 = (float)(distUnionMaskGT.mean())
     standardDeviationEST1, standardDeviationGT1 = 0.0, 0.0
-    for i in range(0, len(sampleEST1)):
-        standardDeviationEST1 += math.pow((sampleEST1[i] - avgEST1), 2)
-    for i in range(0, len(sampleGT1)):
-        standardDeviationGT1 += math.pow((sampleGT1[i] - avgGT1), 2)
+    for i in range(0, len(distUnionMaskEST)):
+        standardDeviationEST1 += math.pow((distUnionMaskEST[i] - avgEST1), 2)
+    for i in range(0, len(distUnionMaskGT)):
+        standardDeviationGT1 += math.pow((distUnionMaskGT[i] - avgGT1), 2)
 
+    # Z test on the union part
     z1 = (avgEST1 - avgGT1) / math.sqrt(
-        (standardDeviationEST1 / len(sampleEST1)) + (standardDeviationGT1) / len(sampleGT1))
+        (standardDeviationEST1 / len(distUnionMaskEST)) + (standardDeviationGT1) / len(distUnionMaskGT))
 
     sampleEST2 = dist_est[est]
     sampleGT2 = dist_gt[gt]
@@ -218,16 +218,29 @@ def wivm(pose_est, pose_gt, model, depth_test, delta, K, inn, un):
     for i in range(0, len(sampleGT2)):
         standardDeviationGT2 += math.pow((sampleGT2[i] - avgGT2), 2)
 
+    # Z test on the their own part
     z2 = (avgEST2 - avgGT2) / math.sqrt(
         (standardDeviationEST2 / len(sampleEST2)) + (standardDeviationGT2) / len(sampleGT2))
 
     return math.fabs(un*z1) + math.fabs(inn*z2)
 
 def cpr(model, groundTruthP, estimatedP, mint, maxt):
+    """
+    Confidently Predicted Range
+    :param model: Object model given by a dictionary where item 'pts' is nx3 ndarray with 3D model points.
+    :param estimatePose: Estimated pose given by a dictionary:
+            {'R': 3x3 rotation matrix, 't': 3x1 translation vector}.
+    :param groundTruthPose: The ground truth pose given by a dictionary
+    :param mint: the tolerate for the wrong point
+    :param maxt: the tolerate for the right point
+    :return: the error for CPR
+    """
 
+    #count the number for the right and wrong pixels
     count1 = len(c.getEstUncetain(model, groundTruthP, estimatedP, maxt))
     count2 = len(c.getEstCetain(model, groundTruthP, estimatedP, mint))
     e = 0.0
+    # if all points are the same between ground truth and estimated pose.
     if count2 != 0:
         e = count1/count2
     return e

@@ -17,12 +17,16 @@ def dist(p1, p2):
 
 def getCertain(model, groundTruthP, estimatedP, tolerate):
     """
-
+    get the list for points True for right False for wrong
+    :param model: Object model given by a dictionary where item 'pts' is nx3 ndarray with 3D model points.
+    :param estimatePose: Estimated pose given by a dictionary:
+            {'R': 3x3 rotation matrix, 't': 3x1 translation vector}.
+    :param groundTruthPose: The ground truth pose given by a dictionary
+    :param tolerate: the right tolerate
+    :return: a list
     """
     # get the points of the ground trouth.
     groundTruthPoints = obj_pose_eval.misc.transform_pts_Rt(model['pts'], groundTruthP['R'], groundTruthP['t'])
-
-
 
     # get the points of the estimated location.
     estmitedPoints = obj_pose_eval.misc.transform_pts_Rt(model['pts'], estimatedP['R'], estimatedP['t'])
@@ -43,7 +47,15 @@ def getCertain(model, groundTruthP, estimatedP, tolerate):
 
 
 def getGTCetain(model, groundTruthP, estimatedP, tolerate):
-
+    """
+    get the ground truth points that is considered right
+    :param model: Object model given by a dictionary where item 'pts' is nx3 ndarray with 3D model points.
+    :param estimatePose: Estimated pose given by a dictionary:
+                {'R': 3x3 rotation matrix, 't': 3x1 translation vector}.
+    :param groundTruthPose: The ground truth pose given by a dictionary
+    :param tolerate: the right tolerate
+    :return: an array
+    """
     cetain = getCertain(model, groundTruthP, estimatedP, tolerate)
 
     # get the points of the ground trouth.
@@ -57,7 +69,15 @@ def getGTCetain(model, groundTruthP, estimatedP, tolerate):
     return np.array(GTCertain)
 
 def getGTUncertain(model, groundTruthP, estimatedP, tolerate):
-
+    """
+    get the ground truth points that is considered wrong
+    :param model: Object model given by a dictionary where item 'pts' is nx3 ndarray with 3D model points.
+    :param estimatePose: Estimated pose given by a dictionary:
+            {'R': 3x3 rotation matrix, 't': 3x1 translation vector}.
+    :param groundTruthPose: The ground truth pose given by a dictionary
+    :param tolerate: the wrong tolerate
+    :return: an array
+    """
     cetain = getCertain(model, groundTruthP, estimatedP, tolerate)
 
     # get the points of the ground trouth.
@@ -71,7 +91,15 @@ def getGTUncertain(model, groundTruthP, estimatedP, tolerate):
     return np.array(GTUncertain)
 
 def getEstCetain(model, groundTruthP, estimatedP, tolerate):
-
+    """
+    get the estimated points that is considered right
+    :param model: Object model given by a dictionary where item 'pts' is nx3 ndarray with 3D model points.
+    :param estimatePose: Estimated pose given by a dictionary:
+                {'R': 3x3 rotation matrix, 't': 3x1 translation vector}.
+    :param groundTruthPose: The ground truth pose given by a dictionary
+    :param tolerate: the right tolerate
+    :return: an array
+    """
     cetain = getCertain(model, groundTruthP, estimatedP, tolerate)
 
     # get the points of the estimated location.
@@ -87,6 +115,15 @@ def getEstCetain(model, groundTruthP, estimatedP, tolerate):
 
 
 def getEstUncetain(model, groundTruthP, estimatedP, tolerate):
+    """
+     get the estimated points that is considered wrong
+     :param model: Object model given by a dictionary where item 'pts' is nx3 ndarray with 3D model points.
+     :param estimatePose: Estimated pose given by a dictionary:
+                 {'R': 3x3 rotation matrix, 't': 3x1 translation vector}.
+     :param groundTruthPose: The ground truth pose given by a dictionary
+     :param tolerate: the right tolerate
+     :return: an array
+     """
     cetain = getCertain(model, groundTruthP, estimatedP, tolerate)
 
     # get the points of the estimated location.
